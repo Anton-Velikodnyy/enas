@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
 import cPickle as pickle
+import os
 import shutil
 import sys
 import time
@@ -12,15 +12,13 @@ import numpy as np
 import tensorflow as tf
 
 from src import utils
-from src.utils import Logger
+from src.ptb.ptb_enas_child import PTBEnasChild
+from src.ptb.ptb_enas_controller import PTBEnasController
 from src.utils import DEFINE_boolean
 from src.utils import DEFINE_float
 from src.utils import DEFINE_integer
 from src.utils import DEFINE_string
-from src.utils import print_user_flags
-
-from src.ptb.ptb_enas_child import PTBEnasChild
-from src.ptb.ptb_enas_controller import PTBEnasController
+from src.utils import Logger
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -31,6 +29,7 @@ DEFINE_string("output_dir", "", "")
 DEFINE_string("search_for", None, "[rhn|base|enas]")
 
 DEFINE_string("child_fixed_arc", None, "")
+DEFINE_string("cell_type", "NAS", "")
 DEFINE_integer("batch_size", 25, "")
 DEFINE_integer("child_base_number", 4, "")
 DEFINE_integer("child_num_layers", 2, "")
@@ -140,6 +139,10 @@ def get_ops(x_train, x_valid, x_test):
       name="ptb_enas_model")
 
     if FLAGS.child_fixed_arc is None:
+      if not FLAGS.cell_type:
+        cell_type = 'NAS'
+      else:
+        cell_type = FLAGS.cell_type
       controller_model = PTBEnasController(
         rhn_depth=FLAGS.child_rhn_depth,
         lstm_size=100,
@@ -156,7 +159,8 @@ def get_ops(x_train, x_valid, x_test):
         optim_algo="adam",
         sync_replicas=FLAGS.controller_sync_replicas,
         num_aggregate=FLAGS.controller_num_aggregate,
-        num_replicas=FLAGS.controller_num_replicas)
+        num_replicas=FLAGS.controller_num_replicas,
+        cell_type=cell_type)
 
       child_model.connect_controller(controller_model)
       controller_model.build_trainer(child_model)
@@ -284,7 +288,7 @@ def train(mode="train"):
             print(log_string)
 
           if (FLAGS.child_reset_train_states is not None and
-              np.random.uniform(0, 1) < FLAGS.child_reset_train_states):
+                  np.random.uniform(0, 1) < FLAGS.child_reset_train_states):
             print("reset train states")
             sess.run([
               child_ops["train_reset"],
@@ -299,7 +303,7 @@ def train(mode="train"):
               child_ops["test_reset"],
             ])
             if (FLAGS.controller_training and
-                epoch % FLAGS.controller_train_every == 0):
+                    epoch % FLAGS.controller_train_every == 0):
               sess.run([
                 child_ops["train_reset"],
                 child_ops["valid_reset"],
@@ -390,4 +394,3 @@ def main(_):
 
 if __name__ == "__main__":
   tf.app.run()
-

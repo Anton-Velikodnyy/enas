@@ -2,6 +2,13 @@
 
 export PYTHONPATH="$(pwd)"
 
+if [ "$1" == "" ]; then
+    cell_type="NAS"
+else
+    cell_type="$1"
+fi
+
+echo "$cell_type"
 python src/ptb/main.py \
   --search_for="enas" \
   --noreset_output_dir \
@@ -36,5 +43,6 @@ python src/ptb/main.py \
   --controller_tanh_constant=2.5 \
   --controller_temperature=5.0 \
   --controller_entropy_weight=0.001 \
-  --eval_every_epochs=1
+  --eval_every_epochs=1\
+  --cell_type="$cell_type"
 

@@ -16,7 +16,7 @@ python src/ptb/main.py \
   --output_dir="outputs" \
   --batch_size=20 \
   --child_bptt_steps=35 \
-  --num_epochs=1 \
+  --num_epochs=10 \
   --child_rhn_depth=12 \
   --child_num_layers=1 \
   --child_lstm_hidden_size=720 \

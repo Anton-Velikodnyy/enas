@@ -9,11 +9,11 @@ else
 fi
 
 echo "$cell_type"
-floyd run --gpu --env tensorflow-1.5:py2 src/ptb/main.py \
-  --search_for="enas" \
+floyd run --gpu --env tensorflow-1.5:py2 "src/ptb/main.py \
+  --search_for='enas' \
   --noreset_output_dir \
-  --data_path="data/ptb/ptb.pkl" \
-  --output_dir="outputs" \
+  --data_path='data/ptb/ptb.pkl' \
+  --output_dir='outputs' \
   --batch_size=20 \
   --child_bptt_steps=35 \
   --num_epochs=10 \
@@ -31,7 +31,7 @@ floyd run --gpu --env tensorflow-1.5:py2 src/ptb/main.py \
   --child_lr_dec_every=1 \
   --child_lr_dec_rate=0.95 \
   --child_lr_dec_min=0.0005 \
-  --child_optim_algo="sgd" \
+  --child_optim_algo='sgd' \
   --child_l2_reg=1e-7 \
   --log_every=50 \
   --controller_training \
@@ -44,5 +44,5 @@ floyd run --gpu --env tensorflow-1.5:py2 src/ptb/main.py \
   --controller_temperature=5.0 \
   --controller_entropy_weight=0.001 \
   --eval_every_epochs=1\
-  --cell_type="$cell_type"
+  --cell_type='$cell_type' "
 
